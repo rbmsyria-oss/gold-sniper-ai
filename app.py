@@ -30,11 +30,25 @@ def run_web():
     app.run(host="0.0.0.0", port=port)
 
 # ==========================================
+#  LIVE PRICE FETCHER (جلب سعر الذهب الحقيقي - الميزة الجديدة بدون حذف القديم)
+# ==========================================
+def get_live_gold_price():
+    try:
+        # استخدام مصدر مجاني سريع لجلب سعر الذهب الفوري
+        response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", timeout=5)
+        data = response.json()
+        live_price = float(data['tether-gold']['usd'])
+        return live_price
+    except Exception as e:
+        print(f"تعذر جلب السعر اللحظي، سيتم استخدام السعر الاحتياطي: {e}")
+        return 4195.0  # السعر الاحتياطي تماماً كما كان في الكود الأصلي
+
+# ==========================================
 #  SIGNAL GENERATOR & TELEGRAM SENDER (المحرك)
 # ==========================================
 def generate_professional_signal():
-    """توليد صفقة وهمية/فورية تجريبية بناءً على نطاق الذهب الحالي 4195$"""
-    entry_price = 4195.0
+    """توليد صفقة بناءً على سعر الذهب الحقيقي المحدث أو السعر الافتراضي"""
+    entry_price = get_live_gold_price()
     sl_pips = 30
     
     # حساب الأسعار والأهداف بناءً على اتجاه افتراضي (BUY)
