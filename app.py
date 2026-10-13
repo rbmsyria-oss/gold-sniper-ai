@@ -30,32 +30,28 @@ def run_web():
     app.run(host="0.0.0.0", port=port)
 
 # ==========================================
-#  LIVE PRICE FETCHER (جلب سعر الذهب الحقيقي - الميزة الجديدة بدون حذف القديم)
+#  LIVE PRICE FETCHER (جلب سعر الذهب الحقيقي)
 # ==========================================
 def get_live_gold_price():
     try:
-        # استخدام مصدر مجاني سريع لجلب سعر الذهب الفوري
         response = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd", timeout=5)
         data = response.json()
         live_price = float(data['tether-gold']['usd'])
         return live_price
     except Exception as e:
         print(f"تعذر جلب السعر اللحظي، سيتم استخدام السعر الاحتياطي: {e}")
-        return 4195.0  # السعر الاحتياطي تماماً كما كان في الكود الأصلي
+        return 4195.0
 
 # ==========================================
 #  SIGNAL GENERATOR & TELEGRAM SENDER (المحرك)
 # ==========================================
 def generate_professional_signal():
-    """توليد صفقة بناءً على سعر الذهب الحقيقي المحدث أو السعر الافتراضي"""
     entry_price = get_live_gold_price()
     sl_pips = 30
     
-    # حساب الأسعار والأهداف بناءً على اتجاه افتراضي (BUY)
     sl_price = round(entry_price - (sl_pips * 0.1), 2)
     tp1_price = round(entry_price + (sl_pips * 0.1), 2)
     
-    # حساب حجم العقد بناءً على إدارة المخاطر
     risk_amount = CAPITAL * (RISK_PERCENT / 100)
     pip_value_per_lot = 10.0
     lot_size = risk_amount / (sl_pips * pip_value_per_lot)
@@ -102,7 +98,7 @@ def hourly_market_scanner():
         except Exception as e:
             print(f"حدث خطأ في المؤقت الدوري: {str(e)}")
         
-        time.sleep(3600) # الانتظار ساعة كاملة
+        time.sleep(3600)
 
 # ==========================================
 #  HANDLERS (الأوامر الواردة للبوت يدوياً)
@@ -124,7 +120,8 @@ def handle(msg):
 # ==========================================
 if __name__ == "__main__":
     try: 
-        requests.get(f"https://api.telegram.org/bot{TOKEN}/deleteWebhook")
+        # قطع أي اتصال getUpdates قديم معلق في خوادم تيليجرام لمنع حدوث خطأ 409 Conflict
+        requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates?offset=-1")
     except: 
         pass
 
