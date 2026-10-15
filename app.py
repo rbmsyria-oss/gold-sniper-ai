@@ -114,7 +114,6 @@ def handle(msg):
         bot.sendMessage(chat_id, "جاري تشغيل الخوارزميات الفنية المتقدمة وبناء الصفقة...")
         sig = generate_professional_signal()
         send_trade_signal(chat_id, sig)
-
 # ==========================================
 #  RUN (المحرك والمشغل الرئيسي)
 # ==========================================
@@ -132,7 +131,13 @@ if __name__ == "__main__":
     Thread(target=hourly_market_scanner, daemon=True).start()
     
     print("GOLD SNIPER PRO IS FULLY OPERATIONAL AND ACTIVE...")
+    
+    # 3. تشغيل استقبال رسائل تليجرام بطريقة مستقرة ودائمة
     MessageLoop(bot, handle).run_as_thread()
     
+    # حلقة بقاء السيرفر حياً بشكل مستمر ومتواصل
     while True:
-        time.sleep(10)
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            break
